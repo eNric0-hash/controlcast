@@ -37,7 +37,7 @@
     "usb-detection": "^4.14.2",
     "winston": "^3.13.0",
     "winston-loggly-bulk": "^1.4.2",
-    "woopra-tracker": "^1.5.0"
+    "woopra": "^1.0.2"
   },
   "build": {
     "appId": "com.controlcast.app",
