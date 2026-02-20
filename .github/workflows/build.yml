@@ -22,23 +22,20 @@ jobs:
       - name: Install dependencies
         run: npm install --ignore-scripts
         
-      # Skip native module rebuild - may not work with old modules
-      # - name: Rebuild native modules for Electron
-      #   run: npx electron-rebuild
-        
       - name: Build with electron-builder
         run: npm run build
         
-      - name: Find .exe file
-        id: find_exe
+      - name: Find and rename .exe file
         shell: pwsh
         run: |
           $exe = Get-ChildItem -Path "dist" -Filter "*.exe" -Recurse | Select-Object -First 1
           if ($exe) {
-            Write-Output "exe_path=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-            Write-Host "Found exe: $($exe.FullName)"
+            $newName = "ControlCast.exe"
+            Move-Item -Path $exe.FullName -Destination "dist/$newName" -Force
+            Write-Output "exe_path=dist/$newName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            Write-Host "Renamed to: dist/$newName"
           } else {
-            Write-Host "No exe found in dist folder"
+            Write-Host "No exe found"
             Get-ChildItem -Path "dist" -Recurse | ForEach-Object { Write-Host $_.FullName }
           }
           
