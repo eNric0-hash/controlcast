@@ -5,19 +5,14 @@
   "main": "./app/index.js",
   "scripts": {
     "start": "electron ./app",
-    "build": "electron-builder",
+    "build": "electron-builder --win portable",
     "rebuild": "electron-rebuild"
   },
   "author": "DBKynd",
   "devDependencies": {
     "electron": "^28.3.3",
     "electron-builder": "^24.13.3",
-    "electron-rebuild": "^3.2.9",
-    "grunt": "^1.6.1",
-    "grunt-aws-s3": "^2.0.0",
-    "grunt-contrib-clean": "^2.0.1",
-    "grunt-shell": "^4.0.0",
-    "load-grunt-tasks": "^5.1.0"
+    "electron-rebuild": "^3.2.9"
   },
   "dependencies": {
     "electron-config": "^2.0.0",
@@ -42,19 +37,12 @@
   "build": {
     "appId": "com.controlcast.app",
     "productName": "ControlCast",
-    "npmRebuild": false,
     "directories": {
       "output": "dist"
     },
     "win": {
-      "target": "portable",
-      "icon": "app/images/icon.ico"
+      "target": "portable"
     },
-    "files": [
-      "app/**/*",
-      "package.json"
-    ],
-    "extraResources": [],
-    "includeSubNodeModules": true
+    "npmRebuild": false
   }
 }
