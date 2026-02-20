@@ -1,0 +1,50 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+          
+      - name: Install dependencies
+        run: npm install
+        env:
+          npm_config_fallback: true
+          
+      - name: Create CodeSigningPassword.json (placeholder)
+        run: |
+          $content = @{"password" = ""} | ConvertTo-Json
+          Set-Content -Path "../CodeSigningPassword.json" -Value $content
+        shell: pwsh
+        
+      - name: Build with Grunt
+        run: npx grunt build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Find .exe file
+        id: find_exe
+        run: |
+          $exe = Get-ChildItem -Path "build" -Filter "*.exe" -Recurse | Select-Object -First 1
+          Write-Output "exe_path=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+          
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.find_exe.outputs.exe_path }}
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
