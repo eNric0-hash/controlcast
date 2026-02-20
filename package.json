@@ -43,6 +43,7 @@
     "appId": "com.controlcast.app",
     "productName": "ControlCast",
     "npmRebuild": false,
+    "asar": false,
     "directories": {
       "output": "dist"
     },
@@ -52,9 +53,9 @@
     },
     "files": [
       "app/**/*",
-      "node_modules/**/*",
       "package.json"
     ],
-    "extraResources": []
+    "extraResources": [],
+    "includeSubNodeModules": true
   }
 }
