@@ -11,7 +11,7 @@ const Config = require('electron-config');
 const fs = require('fs');
 const path = require('path');
 const spawn = require('child_process').spawn;
-const robot = require('robotjs');
+const robot = require('./keyboard-wrapper'); // Using nut-js wrapper instead of robotjs
 const logger = require('./logger')();
 
 const Woopra = require('woopra');
@@ -252,9 +252,9 @@ ipc.on('quit_and_install', () => {
   autoUpdater.quitAndInstall();
 });
 
-ipc.on('robot_key', (e, data) => {
+ipc.on('robot_key', async (e, data) => {
   try {
-    robot.keyToggle(data.key, data.action);
+    await robot.keyToggle(data.key, data.action);
   } catch (err) {
     logger.error(`robot error, key: ${data.key}`, err);
   }

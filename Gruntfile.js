@@ -3,7 +3,14 @@ const fs = require('fs');
 const appVersion = require('./package.json').version;
 const electronVersion = require('./package.json').devDependencies.electron.replace('^', '');
 const releaseUrl = require('./package.json').releaseUrl;
-const certPassword = require('../CodeSigningPassword.json').password;
+
+// Code signing is optional - will use empty string if not available
+let certPassword = '';
+try {
+  certPassword = require('../CodeSigningPassword.json').password || '';
+} catch (e) {
+  // No code signing password - this is fine for local builds
+}
 
 const ignore = [
   '^/.idea',
