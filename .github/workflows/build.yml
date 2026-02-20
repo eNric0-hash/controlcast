@@ -32,17 +32,15 @@ jobs:
           if ($exe) {
             $newName = "ControlCast.exe"
             Move-Item -Path $exe.FullName -Destination "dist/$newName" -Force
-            Write-Output "exe_path=dist/$newName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
             Write-Host "Renamed to: dist/$newName"
-          } else {
-            Write-Host "No exe found"
-            Get-ChildItem -Path "dist" -Recurse | ForEach-Object { Write-Host $_.FullName }
+            # Upload using glob pattern
+            Write-Host "##vso[task.setvariable variable=exe_file]dist/$newName"
           }
           
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ steps.find_exe.outputs.exe_path }}
+          files: dist/ControlCast.exe
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
