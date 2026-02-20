@@ -31,9 +31,15 @@ jobs:
         
       - name: Find .exe file
         id: find_exe
+        shell: pwsh
         run: |
-          Get-ChildItem -Path "dist" -Filter "*.exe" -Recurse | Select-Object -First 1 | ForEach-Object {
-            Write-Output "exe_path=$($_.FullName)" >> $env:GITHUB_OUTPUT
+          $exe = Get-ChildItem -Path "dist" -Filter "*.exe" -Recurse | Select-Object -First 1
+          if ($exe) {
+            Write-Output "exe_path=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            Write-Host "Found exe: $($exe.FullName)"
+          } else {
+            Write-Host "No exe found in dist folder"
+            Get-ChildItem -Path "dist" -Recurse | ForEach-Object { Write-Host $_.FullName }
           }
           
       - name: Upload Release Asset
