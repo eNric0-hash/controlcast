@@ -2,7 +2,7 @@
   "name": "ControlCast",
   "version": "0.4.0",
   "description": "ControlCast - A Launchpad Controller desktop application for streamers",
-  "main": "./app",
+  "main": "./app/index.js",
   "scripts": {
     "start": "electron ./app",
     "build": "electron-builder",
@@ -43,7 +43,6 @@
     "appId": "com.controlcast.app",
     "productName": "ControlCast",
     "npmRebuild": false,
-    "asar": false,
     "directories": {
       "output": "dist"
     },
