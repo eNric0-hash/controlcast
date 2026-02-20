@@ -23,10 +23,16 @@ jobs:
         run: |
           git config --global url."https://github.com/".insteadOf "git@github.com:"
           git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
-          npm install
+          npm install --legacy-peer-deps
         env:
           npm_config_fallback: true
           
+      - name: Install electron-rebuild
+        run: npm install @electron/rebuild --legacy-peer-deps
+        
+      - name: Rebuild native modules for Electron
+        run: npx @electron/rebuild
+        
       - name: Create CodeSigningPassword.json (placeholder)
         run: |
           $content = @{"password" = ""} | ConvertTo-Json
