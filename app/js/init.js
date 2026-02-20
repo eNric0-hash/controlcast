@@ -45,6 +45,8 @@ const keyboard = [];
 let tracks = {}; // Holds all the audio tracks in memory to be played
 let images = {};
 
+let currentPage = 0; // Current page (0-7 for side keys)
+
 const config = new Config(); // Load Config
 let tempKeys = {}; // Temp key settings before saving
 
@@ -224,6 +226,14 @@ autoUpdater.on('update-downloaded', () => {
 
 function getKeyConfig(key) {
   if (Array.isArray(key)) key = key.join(',');
+  // Check if we're on a non-default page and try to get page-specific config
+  if (currentPage > 0) {
+    const pageKey = `page${currentPage}.${key}`;
+    const pageConfig = config.get(`keys.${pageKey}`);
+    if (pageConfig && Object.keys(pageConfig).length > 0) {
+      return pageConfig;
+    }
+  }
   return tempKeys[key] || config.get(`keys.${key}`) || defaultKeyConfig();
 }
 

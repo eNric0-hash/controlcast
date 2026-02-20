@@ -63,7 +63,13 @@ function readyOptions() {
     const keys = config.get('keys'); // Get current key settings
     for (const key in tempKeys) { // Loop through all temp keys
       if (tempKeys.hasOwnProperty(key)) {
-        keys[key] = tempKeys[key]; // Overwrite with new key
+        // If on a non-default page, save to page-specific key
+        if (currentPage > 0) {
+          const pageKey = `page${currentPage}.${key}`;
+          keys[pageKey] = tempKeys[key];
+        } else {
+          keys[key] = tempKeys[key];
+        }
       }
     }
     config.set('keys', removeDefaultKeys(keys)); // Save changed keys to file

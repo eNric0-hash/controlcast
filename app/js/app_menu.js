@@ -4,6 +4,8 @@
 /* eslint no-undef: 0 */
 /* eslint no-console: 0 */
 
+const fs = require('fs');
+
 const titleMenu = Menu.buildFromTemplate([
   {
     label: 'View',
@@ -47,6 +49,62 @@ const titleMenu = Menu.buildFromTemplate([
         label: 'Start Minimized',
         type: 'checkbox',
         click: (e) => config.set('app.start_minimized', e.checked),
+      },
+      {
+        label: 'Export Config',
+        click: () => {
+          const configPath = dialog.showSaveDialog({
+            title: 'Export ControlCast Config',
+            defaultPath: 'controlcast-config.json',
+            filters: [{ name: 'JSON', extensions: ['json'] }],
+          });
+          configPath.then((result) => {
+            if (!result.canceled && result.filePath) {
+              const exportData = {
+                keys: config.get('keys'),
+                app: {
+                  version: config.get('app.version'),
+                  id: config.get('app.id'),
+                },
+              };
+              fs.writeFileSync(result.filePath, JSON.stringify(exportData, null, 2));
+              noty({ text: 'Config exported successfully!', type: 'success', timeout: 3000 });
+            }
+          });
+        },
+      },
+      {
+        label: 'Import Config',
+        click: () => {
+          const configPath = dialog.showOpenDialog({
+            title: 'Import ControlCast Config',
+            filters: [{ name: 'JSON', extensions: ['json'] }],
+            properties: ['openFile'],
+          });
+          configPath.then((result) => {
+            if (!result.canceled && result.filePaths.length > 0) {
+              try {
+                const importData = JSON.parse(fs.readFileSync(result.filePaths[0], 'utf8'));
+                if (importData.keys) {
+                  config.set('keys', importData.keys);
+                  setAllLights(); // Refresh the UI
+                  noty({ text: 'Config imported successfully!', type: 'success', timeout: 3000 });
+                } else {
+                  noty({ text: 'Invalid config file - no keys found', type: 'error', timeout: 3000 });
+                }
+              } catch (e) {
+                noty({ text: 'Error importing config: ' + e.message, type: 'error', timeout: 3000 });
+              }
+            }
+          });
+        },
+      },
+      {
+        label: 'Stop All Audio',
+        click: () => {
+          stopAllAudio();
+          noty({ text: 'All audio stopped!', type: 'success', timeout: 1500 });
+        },
       },
       {
         label: 'CLR Browser',
@@ -118,9 +176,9 @@ Menu.setApplicationMenu(titleMenu); // Set title menu
 titleMenu.items[1].submenu.items[0].checked = config.get('app.close_to_tray');
 titleMenu.items[1].submenu.items[1].checked = config.get('app.auto_start');
 titleMenu.items[1].submenu.items[2].checked = config.get('app.start_minimized');
-titleMenu.items[1].submenu.items[3].submenu.items[0].checked = config.get('app.clr.enabled');
-titleMenu.items[1].submenu.items[3].submenu.items[1].enabled = config.get('app.clr.enabled');
-titleMenu.items[1].submenu.items[3].submenu.items[2].enabled = config.get('app.clr.enabled');
+titleMenu.items[1].submenu.items[6].submenu.items[0].checked = config.get('app.clr.enabled');
+titleMenu.items[1].submenu.items[6].submenu.items[1].enabled = config.get('app.clr.enabled');
+titleMenu.items[1].submenu.items[6].submenu.items[2].enabled = config.get('app.clr.enabled');
 
 function clrNoty() {
   const blanket = $('.blanket');

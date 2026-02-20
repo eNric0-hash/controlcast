@@ -4,9 +4,18 @@
 /* eslint no-undef: 0 */
 /* eslint no-console: 0 */
 
+// currentPage is defined in init.js
+
 // All midi and gui key events land here
 function keyEvent(source, key, action, edit) {
   // console.log(`${source} key ${action === 'press' ? 'pressed' : 'release'}: ${key}`); // Log the key action
+  
+  // Page switching: Side keys (x=8) switch pages
+  if (key[0] === 8 && action === 'press' && !edit) {
+    switchPage(key[1]);
+    return;
+  }
+  
   const keyConfig = getKeyConfig(key);
   if (!edit) { // Only perform these actions if left-click on key - no right-click
     colorKey(key, action, keyConfig); // Color the key based on the action
@@ -19,6 +28,44 @@ function keyEvent(source, key, action, edit) {
     $('.options .key_pos_label').text(`(${key.join(',')})`); // Change key label to show last pressed key
     lastKey = key; // Update what the last key pressed was
     setKeyOptions(); // Update the Edit key options fields
+  }
+}
+
+function switchPage(pageNum) {
+  if (pageNum < 0 || pageNum > 7) return;
+  currentPage = pageNum;
+  
+  // Update all key visuals to show new page config
+  setAllLights();
+  
+  // Show notification
+  noty({ text: `Page ${pageNum + 1} loaded`, type: 'info', timeout: 1500 });
+  
+  // Update page indicator on side keys
+  updatePageIndicators();
+}
+
+function updatePageIndicators() {
+  // Light up the current page side key
+  for (let r = 0; r < 8; r++) {
+    const key = [8, r];
+    const guiKey = getGuiKey(key);
+    guiKey.removeClass(guiKey.data('color'));
+    if (r === currentPage) {
+      guiKey.addClass('GREEN');
+      guiKey.data('color', 'GREEN');
+      if (launchpad) {
+        const button = launchpad.getButton(8, r);
+        button.light(color.GREEN);
+      }
+    } else {
+      guiKey.addClass('OFF');
+      guiKey.data('color', 'OFF');
+      if (launchpad) {
+        const button = launchpad.getButton(8, r);
+        button.light(color.OFF);
+      }
+    }
   }
 }
 
@@ -69,6 +116,8 @@ function setAllLights() { // Sets all key lights to their released state color (
       setIcons([c, r], keyConfig);
     }
   }
+  // Update page indicators for side keys
+  updatePageIndicators();
 }
 
 function colorKey(key, action, keyConfig) {
@@ -98,6 +147,15 @@ function stopAudio(track) { // Stops the track
   const tmp = track.src; // Stores the current source
   track.src = ''; // Clears the source, this is what actually stops the audio
   track.src = tmp; // Restore the source for next play
+}
+
+function stopAllAudio() { // Stops all playing audio tracks
+  for (const key in tracks) {
+    if (tracks.hasOwnProperty(key) && tracks[key]) {
+      tracks[key].pause();
+      tracks[key].currentTime = 0;
+    }
+  }
 }
 
 function playAudio(key, action, keyConfig) { // Handle Audio playback
