@@ -17,38 +17,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
           
       - name: Install dependencies
-        run: |
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
-          git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
-          npm install --legacy-peer-deps
-        env:
-          npm_config_fallback: true
-          
-      - name: Install electron-rebuild
-        run: npm install @electron/rebuild --legacy-peer-deps
+        run: npm ci
         
       - name: Rebuild native modules for Electron
-        run: npx @electron/rebuild
+        run: npx electron-rebuild
         
-      - name: Create CodeSigningPassword.json (placeholder)
-        run: |
-          $content = @{"password" = ""} | ConvertTo-Json
-          Set-Content -Path "../CodeSigningPassword.json" -Value $content
-        shell: pwsh
+      - name: Build with electron-builder
+        run: npm run build
         
-      - name: Build with Grunt
-        run: npx grunt build
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
       - name: Find .exe file
         id: find_exe
         run: |
-          $exe = Get-ChildItem -Path "build" -Filter "*.exe" -Recurse | Select-Object -First 1
-          Write-Output "exe_path=$($exe.FullName)" >> $env:GITHUB_OUTPUT
+          Get-ChildItem -Path "dist" -Filter "*.exe" -Recurse | Select-Object -First 1 | ForEach-Object {
+            Write-Output "exe_path=$($_.FullName)" >> $env:GITHUB_OUTPUT
+          }
           
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
