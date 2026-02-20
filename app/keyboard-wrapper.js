@@ -1,5 +1,5 @@
 // keyboard-wrapper.js - Wrapper to replace robotjs with nut-js
-const { Keyboard, Key } = require('@nut-tree/nut-js');
+const { Keyboard, Key } = require('@nut-tree-fork/nut-js');
 
 // Key mapping from controlcast key names to nut-js Key enum
 const keyMap = {
